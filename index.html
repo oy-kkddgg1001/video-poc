@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M3U8 Player</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    video {
+
+      margin-top: 20px;
+    }
+    input[type="file"] {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- File Input to Choose M3U8 File -->
+  <input type="file" id="fileInput" accept=".m3u8" />
+
+  <!-- Video Player -->
+  <video id="videoPlayer-normal" controls width="480" height="720" autoplay></video>
+  <video id="videoPlayer" controls width="480" height="720" autoplay></video>
+
+
+  <script>
+
+    window.addEventListener('DOMContentLoaded', function(event) {
+      // const file = event.target.files[0];
+        const videoNormal = document.querySelector('#videoPlayer-normal');
+
+
+        const video = document.getElementById('videoPlayer');
+        const fileURL = "https://shutter-media-storage.s3.ap-northeast-2.amazonaws.com/convert/%EC%83%98%ED%94%8C+1.m3u8";
+
+        if (Hls.isSupported()) {
+          const hls = new Hls({
+    maxBufferSize: 1 * 1000 * 100, // 1MB
+    maxBufferLength: 5, // 최대 30초 데이터만 버퍼링
+    maxMaxBufferLength: 30, // 상한은 60초
+  });
+          hls.loadSource(fileURL);
+          videoNormal.src = "https://shutter-media-storage.s3.ap-northeast-2.amazonaws.com/temp/%EC%83%98%ED%94%8C+1.mov";
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, function() {
+            video.play();
+          });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          // Safari and iOS support HLS natively
+          video.src = fileURL;
+          video.addEventListener('loadedmetadata', function() {
+            video.play();
+          });
+        } else {
+          alert('HLS not supported on this browser.');
+        }
+
+        videoNormal.play();
+        video.play();
+
+    });
+  </script>
+
+</body>
+</html>
